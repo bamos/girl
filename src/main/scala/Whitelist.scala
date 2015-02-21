@@ -20,6 +20,9 @@ object Whitelist {
     "VT-Magnum-Research",
     "WalnutiQ",
     "zmughal",
-    "geotrellis"
+    "geotrellis",
+    "twitter",
+    "github",
+    "facebook"
   ).map(_.toLowerCase)
 }
