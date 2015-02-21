@@ -3,6 +3,7 @@ package io.github.bamos
 object Whitelist {
   val users = Seq(
     "adobe-research",
+    "ajn123",
     "bamos",
     "cmusatyalab",
     "jebes",
