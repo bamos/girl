@@ -42,3 +42,6 @@ which re-compiles and restarts the server upon source code changes.
 
 [sbt]: http://www.scala-sbt.org/
 [sbt-revolver]: https://github.com/spray/sbt-revolver
+
+## Licensing
+All portions are [MIT-licensed](https://github.com/bamos/girl/blob/master/LICENSE.mit).
