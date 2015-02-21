@@ -19,7 +19,7 @@ object Girl {
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
   val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
-  val reqFollowers = 250
+  val reqFollowers = 50
 
   val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
   def getRepoBrokenLinksMemoized(userName: String, repoName: String) =

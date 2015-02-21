@@ -10,7 +10,7 @@ A public version is hosted at <http://derecho.elijah.cs.cmu.edu:8585/demo>.
 ## Whitelist
 To prevent misuse, girl restricts usage to
 GitHub users with
-over 250 followers or users and organizations on the
+over 50 followers or users and organizations on the
 [whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala).
 Please add your accounts to the
 [whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala)
