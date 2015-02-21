@@ -20,7 +20,7 @@ and submit a pull request to gain access. Thanks!
 
 Before running locally,
 set your [GitHub API token](https://github.com/blog/1509-personal-api-tokens)
-in the environment variable `$GITHUB_TOKEN`,
+in the environment variable `GITHUB_TOKEN`,
 or modify the GitHub API connection in
 [Girl.scala](https://github.com/bamos/girl/blob/master/src/main/scala/Girl.scala)
 to another option from
