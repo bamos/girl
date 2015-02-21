@@ -4,22 +4,36 @@ import org.jsoup.Jsoup
 import org.kohsuke.github.{GitHub,GHRepository}
 
 import scala.collection.JavaConversions._
-
-import scalaz.Memo
+import scala.concurrent.duration._
 
 import java.io.IOException
 import java.net.{MalformedURLException,SocketTimeoutException}
 import javax.net.ssl.SSLProtocolException
 import org.jsoup.{HttpStatusException,UnsupportedMimeTypeException}
 
+import spray.caching.{LruCache,Cache}
+
 object Girl {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val gh = GitHub.connectUsingOAuth(
     scala.util.Properties.envOrElse("GITHUB_TOKEN",""))
+
+  val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
+  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
+    repoCache(userName+"/"+repoName) {
+      getRepoBrokenLinks(userName,repoName)
+    }
 
   def getRepoBrokenLinks(userName: String, repoName: String): String = {
     val user = gh.getUser(userName)
     val repo = user.getRepository(repoName)
     getBrokenLinksStr(userName,repoName,repo)
+  }
+
+  val userNameCache: Cache[String] = LruCache(timeToLive = 24 hours)
+  def getUserBrokenLinksMemoized(userName: String) = userNameCache(userName) {
+    getUserBrokenLinks(userName)
   }
 
   def getUserBrokenLinks(userName: String): String = {

@@ -40,12 +40,12 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       }~
       path(Segment) { user =>
         complete(
-          Girl.getUserBrokenLinks(user)
+          Girl.getUserBrokenLinksMemoized(user)
         )
       }~
       path(Segment/Segment) { (user,repo) =>
         complete(
-          Girl.getRepoBrokenLinks(user,repo)
+          Girl.getRepoBrokenLinksMemoized(user,repo)
         )
       }
     }~
