@@ -62,18 +62,25 @@ object Girl {
     invalidLinks.seq
   }
 
-  private def isValidURL(url: String): Boolean = {
+  private def isValidURL(url: String, attempt_num: Int = 1): Boolean = {
     if (url.startsWith("mailto:")) return true
     try {
       val doc = Jsoup.connect(url)
         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0")
+        .timeout(1000)
         .execute()
       if (doc.statusCode != 200) false
       else true
     } catch {
       case _: UnsupportedMimeTypeException | _: SSLProtocolException => true
+      case e: SocketTimeoutException =>
+        // A timeout might just be a slow page that doesn't
+        // respond within a second. Retry up to three times.
+        println(url,e,attempt_num)
+        if (attempt_num < 3) isValidURL(url,attempt_num+1)
+        else false
       case e: Throwable => {
-        println(url,e)
+        println(url,e,attempt_num)
         false
       }
     }

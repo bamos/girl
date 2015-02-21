@@ -48,6 +48,18 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       path(Rest) { path =>
         getFromResource("bootstrap/%s" format path)
       }~
+      path("demo") {
+        respondWithMediaType(`text/html`) {
+          complete(html.index(
+            "user-demo",
+            Seq(
+              ("repo-1",(0 until 3).map("bad-link-"+_)),
+              ("repo-2",(0 until 6).map("bad-link-"+_)),
+              ("repo-3",Seq())
+            )).toString
+          )
+        }
+      }~
       path(Segment) { user =>
         respondWithMediaType(`text/html`) {
           complete(Girl.getUserBrokenLinksMemoized(user))
