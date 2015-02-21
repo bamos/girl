@@ -18,6 +18,17 @@ and submit a pull request to gain access. Thanks!
 
 ## Building
 
+Before running locally,
+set your [GitHub API token](https://github.com/blog/1509-personal-api-tokens)
+in the environment variable `$GITHUB_TOKEN`,
+or modify the GitHub API connection in
+[Girl.scala](https://github.com/bamos/girl/blob/master/src/main/scala/Girl.scala)
+to another option from
+[kohsuke.github.GitHub](http://github-api.kohsuke.org/apidocs/org/kohsuke/github/GitHub.html).
+Also in `Girl.scala`, if desired, set the minimum number of
+required followers to zero: `val reqFollowers = 0`.
+
+
 `girl` is built with [sbt][sbt].
 Executing `sbt run` from the `girl` directory will download
 the dependencies, compile the source code, and start
