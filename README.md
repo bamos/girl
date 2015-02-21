@@ -13,7 +13,7 @@ GitHub users with
 over 250 followers or users and organizations on the
 [whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala).
 Please add your accounts to the
-[whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala).
+[whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala)
 and submit a pull request to gain access. Thanks!
 
 ## Building
