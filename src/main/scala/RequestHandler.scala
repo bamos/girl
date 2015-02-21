@@ -16,7 +16,7 @@ import ExecutionContext.Implicits.global
 
 // Actor accepting Http requests for the Scala collector.
 class RequestHandlerActor extends Actor with HttpService {
-  implicit val timeout: Timeout = 1000.second // For the actor 'asks'
+  implicit val timeout: Timeout = 2000.second // For the actor 'asks'
   import context.dispatcher
   def actorRefFactory = context
 
@@ -35,9 +35,17 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
   implicit def actorRefFactory = context
   val collectorRoute = {
     get {
-      path(Rest) { name =>
+      path("favicon.ico") {
+        complete(StatusCodes.NotFound)
+      }~
+      path(Segment) { user =>
         complete(
-          HttpResponse(entity = name)
+          Girl.getUserBrokenLinks(user)
+        )
+      }~
+      path(Segment/Segment) { (user,repo) =>
+        complete(
+          Girl.getRepoBrokenLinks(user,repo)
         )
       }
     }~
