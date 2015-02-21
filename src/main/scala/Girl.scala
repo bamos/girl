@@ -86,9 +86,9 @@ object Girl {
       case _: UnsupportedMimeTypeException | _: SSLProtocolException => true
       case e: SocketTimeoutException =>
         // a timeout might just be a slow page that doesn't
-        // respond within a second. Retry up to three times.
+        // respond within a second. Retry once.
         println(url,e,attempt_num)
-        if (attempt_num < 3) isValidURL(url,attempt_num+1)
+        if (attempt_num < 2) isValidURL(url,attempt_num+1)
         else false
       case e: Throwable => {
         println(url,e,attempt_num)
