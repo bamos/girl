@@ -3,7 +3,6 @@ package io.github.bamos
 import com.typesafe.scalalogging.Logger
 import org.jsoup.{Jsoup,HttpStatusException,UnsupportedMimeTypeException}
 import org.kohsuke.github.{GitHub,GHRepository}
-import org.markdown4j.Markdown4jProcessor
 import org.slf4j.LoggerFactory
 import spray.caching.{LruCache,Cache}
 
@@ -20,7 +19,6 @@ object Girl {
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
   val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
-  val mdProc = new Markdown4jProcessor()
   val reqFollowers = 250
 
   val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
