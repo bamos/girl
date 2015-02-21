@@ -22,6 +22,7 @@ object Girl {
   val gh = GitHub.connectUsingOAuth(
     scala.util.Properties.envOrElse("GITHUB_TOKEN",""))
   val mdProc = new Markdown4jProcessor()
+  val reqFollowers = 250
 
   val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
   def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
@@ -32,8 +33,13 @@ object Girl {
   def getRepoBrokenLinks(userName: String, repoName: String) = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val user = gh.getUser(userName)
-    val repo = user.getRepository(repoName)
-    html.index(userName,Seq((repoName,getBrokenLinks(repo)))).toString
+    if (Whitelist.users.contains(userName.toLowerCase) ||
+        user.getFollowersCount() > reqFollowers) {
+      val repo = user.getRepository(repoName)
+      html.index(userName,Seq((repoName,getBrokenLinks(repo)))).toString
+    } else {
+      html.whitelist(userName, reqFollowers).toString
+    }
   }
 
   val userNameCache: Cache[String] = LruCache(timeToLive = 24 hours)
@@ -43,11 +49,16 @@ object Girl {
   def getUserBrokenLinks(userName: String) = {
     logger.info(s"getUserBrokenLinks: $userName")
     val user = gh.getUser(userName)
-    val repos = user.getRepositories().par
-    val allBrokenLinks = repos.collect{
-      case (repoName,repo) if !repo.isPrivate =>
-        (repoName,getBrokenLinks(repo))}
-    html.index(userName,allBrokenLinks.toSeq.seq.sortBy(_._1)).toString
+    if (Whitelist.users.contains(userName.toLowerCase) ||
+        user.getFollowersCount() > reqFollowers) {
+      val repos = user.getRepositories().par
+      val allBrokenLinks = repos.collect{
+        case (repoName,repo) if !repo.isPrivate =>
+          (repoName,getBrokenLinks(repo))}
+      html.index(userName,allBrokenLinks.toSeq.seq.sortBy(_._1)).toString
+    } else {
+      html.whitelist(userName, reqFollowers).toString
+    }
   }
 
   private def getBrokenLinks(repo: GHRepository): Seq[String] = {
@@ -67,14 +78,14 @@ object Girl {
     try {
       val doc = Jsoup.connect(url)
         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0")
-        .timeout(1000)
+        .timeout(2000*attempt_num)
         .execute()
       if (doc.statusCode != 200) false
       else true
     } catch {
       case _: UnsupportedMimeTypeException | _: SSLProtocolException => true
       case e: SocketTimeoutException =>
-        // A timeout might just be a slow page that doesn't
+        // a timeout might just be a slow page that doesn't
         // respond within a second. Retry up to three times.
         println(url,e,attempt_num)
         if (attempt_num < 3) isValidURL(url,attempt_num+1)
