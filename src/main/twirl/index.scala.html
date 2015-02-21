@@ -1,4 +1,4 @@
-@(user: String, repos: Seq[(String,Seq[String])])
+@(user: String, repos: Seq[(String,Seq[String])], numBroken: Int, totalChecked: Int)
 
 @base { } {
   <div class="container">
@@ -50,6 +50,7 @@
       </div>
 
       <h3>> <a href="https://github.com/@(user)">@(user)</a></h3>
+      @(numBroken) Broken Links | @(totalChecked) Total Links Checked
 
       @for((repo,broken_links)<-repos) {
         <h4><a href="https://github.com/@(user)/@(repo)">@(repo)</a></h4>

@@ -56,7 +56,9 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
               ("repo-1",(0 until 3).map("bad-link-"+_)),
               ("repo-2",(0 until 6).map("bad-link-"+_)),
               ("repo-3",Seq())
-            )).toString
+            ),
+            9,
+            42).toString
           )
         }
       }~

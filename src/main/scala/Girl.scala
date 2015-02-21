@@ -33,7 +33,9 @@ object Girl {
     if (Whitelist.users.contains(userName.toLowerCase) ||
         user.getFollowersCount() > reqFollowers) {
       val repo = user.getRepository(repoName)
-      html.index(userName,Seq((repoName,getBrokenLinks(repo)))).toString
+      val (totalChecked, brokenLinks) = getBrokenLinks(repo)
+      html.index(userName,Seq((repoName,brokenLinks)),
+        brokenLinks.size,totalChecked).toString
     } else {
       html.whitelist(userName, reqFollowers).toString
     }
@@ -51,23 +53,27 @@ object Girl {
       val repos = user.getRepositories().par
       val allBrokenLinks = repos.collect{
         case (repoName,repo) if !repo.isPrivate =>
-          (repoName,getBrokenLinks(repo))}
-      html.index(userName,allBrokenLinks.toSeq.seq.sortBy(_._1)).toString
+          val (numChecked, brokenLinks) = getBrokenLinks(repo)
+          (repoName,numChecked,brokenLinks)}.toSeq.seq.sortBy(_._1)
+      val totalLinks = allBrokenLinks.map(_._2).reduce(_+_)
+      val numBroken = allBrokenLinks.map(_._3.size).reduce(_+_)
+      html.index(userName,allBrokenLinks.map(x => (x._1,x._3)),
+        numBroken,totalLinks).toString
     } else {
       html.whitelist(userName, reqFollowers).toString
     }
   }
 
-  private def getBrokenLinks(repo: GHRepository): Seq[String] = {
+  private def getBrokenLinks(repo: GHRepository) = {
     try analyzeReadme(repo.getReadme().getHtmlUrl())
-    catch { case _: Throwable => Seq() }
+    catch { case _: Throwable => (0,Seq()) }
   }
 
-  private def analyzeReadme(url: String): Seq[String] = {
+  private def analyzeReadme(url: String) = {
     val readme_doc = Jsoup.connect(url).get()
     val links = readme_doc.select("div#readme").select("a[href]")
     val invalidLinks = links.map(_.attr("abs:href")).par.filter(!isValidURL(_))
-    invalidLinks.seq
+    (links.size,invalidLinks.seq)
   }
 
   private def isValidURL(url: String, attempt_num: Int = 1): Boolean = {
