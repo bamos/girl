@@ -24,47 +24,30 @@ object Girl {
   val mdProc = new Markdown4jProcessor()
 
   val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getRepoBrokenLinksMemoized(userName: String, repoName: String,
-      html: Boolean = false) =
-    repoCache(userName+"/"+repoName+"/"+html) {
-      getRepoBrokenLinks(userName,repoName,html)
+  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
+    repoCache(userName+"/"+repoName) {
+      getRepoBrokenLinks(userName,repoName)
     }
 
-  def getRepoBrokenLinks(userName: String, repoName: String,
-      html: Boolean = false): String = {
+  def getRepoBrokenLinks(userName: String, repoName: String) = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val user = gh.getUser(userName)
     val repo = user.getRepository(repoName)
-    val md = getBrokenLinksStr(userName,repoName,repo)
-    if (html) mdProc.process(md)
-    else md
+    html.index(userName,Seq((repoName,getBrokenLinks(repo)))).toString
   }
 
   val userNameCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getUserBrokenLinksMemoized(userName: String, html: Boolean = false) =
-    userNameCache(userName+"/"+html) {
-      getUserBrokenLinks(userName, html)
-    }
+  def getUserBrokenLinksMemoized(userName: String) =
+    userNameCache(userName) {getUserBrokenLinks(userName)}
 
-  def getUserBrokenLinks(userName: String, html: Boolean = false): String = {
+  def getUserBrokenLinks(userName: String) = {
     logger.info(s"getUserBrokenLinks: $userName")
     val user = gh.getUser(userName)
     val repos = user.getRepositories().par
     val allBrokenLinks = repos.collect{
       case (repoName,repo) if !repo.isPrivate =>
-        (repoName,getBrokenLinksStr(userName,repoName,repo))}
-    .toSeq.seq.sortBy(_._1).map(_._2)
-    val md = allBrokenLinks.mkString("\n\n")
-    if (html) mdProc.process(md)
-    else md
-  }
-
-  private def getBrokenLinksStr(userName: String, repoName: String,
-    repo: GHRepository) = {
-    val brokenLinks = getBrokenLinks(repo).map(" + "+_).mkString("\n")
-    s"""|# [$repoName](https://github.com/$userName/$repoName)
-        |
-        |$brokenLinks""".stripMargin
+        (repoName,getBrokenLinks(repo))}
+    html.index(userName,allBrokenLinks.toSeq.seq.sortBy(_._1)).toString
   }
 
   private def getBrokenLinks(repo: GHRepository): Seq[String] = {

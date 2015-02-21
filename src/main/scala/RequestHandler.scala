@@ -36,21 +36,26 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
   implicit def actorRefFactory = context
   val collectorRoute = {
     get {
+      pathSingleSlash {
+        redirect("/bamos", StatusCodes.Found)
+      }~
       path("favicon.ico") {
         complete(StatusCodes.NotFound)
       }~
+      path(Rest) { path =>
+        getFromResource("%s" format path)
+      }~
+      path(Rest) { path =>
+        getFromResource("bootstrap/%s" format path)
+      }~
       path(Segment) { user =>
-        parameters('html ? true) { html =>
-          respondWithMediaType(if (html) `text/html` else `text/plain`) {
-            complete(Girl.getUserBrokenLinksMemoized(user,html))
-          }
+        respondWithMediaType(`text/html`) {
+          complete(Girl.getUserBrokenLinksMemoized(user))
         }
       }~
       path(Segment/Segment) { (user,repo) =>
-        parameters('html ? true) { html =>
-          respondWithMediaType(if (html) `text/html` else `text/plain`) {
-            complete(Girl.getRepoBrokenLinksMemoized(user,repo,html))
-          }
+        respondWithMediaType(`text/html`) {
+          complete(Girl.getRepoBrokenLinksMemoized(user,repo))
         }
       }
     }~

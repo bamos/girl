@@ -24,3 +24,10 @@ resolvers ++= Seq(
 )
 
 Revolver.settings
+
+lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
+
+unmanagedResourceDirectories in Compile <<= Seq(
+  baseDirectory / "src/main/webapp",
+  baseDirectory / "src/main/resources"
+).join
