@@ -5,12 +5,19 @@ object Whitelist {
     "adobe-research",
     "ajn123",
     "bamos",
+    "bryangarza",
     "cmusatyalab",
+    "darksigma",
+    "docker",
     "jebes",
     "hamiltont",
+    "ObeliskIsHuge",
+    "rhema",
     "snowplow",
+    "tejasmanohar",
     "themattman",
     "VT-Magnum-Research",
-    "WalnutiQ"
+    "WalnutiQ",
+    "zmughal"
   ).map(_.toLowerCase)
 }
