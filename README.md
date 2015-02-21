@@ -5,7 +5,7 @@
 `girl` is a <b>Gi</b>thub <b>R</b>eadme <b>L</b>ink Checker
 served over HTTP with [Scala](http://scala-lang.org/)
 and [Spray](http://spray.io/).
-A public version is hosted at <http://derecho.cs.cmu.edu:8585/demo>.
+A public version is hosted at <http://derecho.elijah.cs.cmu.edu:8585/demo>.
 
 ## Whitelist
 To prevent misuse, girl restricts usage to
