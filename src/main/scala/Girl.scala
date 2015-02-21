@@ -19,8 +19,7 @@ object Girl {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
-  val gh = GitHub.connectUsingOAuth(
-    scala.util.Properties.envOrElse("GITHUB_TOKEN",""))
+  val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
   val mdProc = new Markdown4jProcessor()
   val reqFollowers = 250
 
