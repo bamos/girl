@@ -19,6 +19,7 @@ object Whitelist {
     "themattman",
     "VT-Magnum-Research",
     "WalnutiQ",
-    "zmughal"
+    "zmughal",
+    "geotrellis"
   ).map(_.toLowerCase)
 }
