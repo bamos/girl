@@ -10,6 +10,7 @@ object Whitelist {
     "darksigma",
     "docker",
     "jebes",
+    "HackathonHackers",
     "hamiltont",
     "ObeliskIsHuge",
     "rhema",
