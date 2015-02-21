@@ -10,6 +10,7 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-caching" % "1.3.2",
   "io.spray" %% "spray-can" % "1.3.2",
   "io.spray" %% "spray-routing" % "1.3.2",
+  "org.commonjava.googlecode.markdown4j" % "markdown4j" % "2.2-cj-1.0",
   "org.jsoup" % "jsoup" % "1.8.1",
   "org.kohsuke" % "github-api" % "1.62",
   "org.scalaz" %% "scalaz-core" % "7.1.1",

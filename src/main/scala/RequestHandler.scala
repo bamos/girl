@@ -8,6 +8,7 @@ import akka.util.Timeout
 // Spray
 import spray.http._
 import spray.routing.HttpService
+import MediaTypes._
 
 // Scala
 import scala.concurrent._
@@ -39,14 +40,18 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
         complete(StatusCodes.NotFound)
       }~
       path(Segment) { user =>
-        complete(
-          Girl.getUserBrokenLinksMemoized(user)
-        )
+        parameters('html ? true) { html =>
+          respondWithMediaType(if (html) `text/html` else `text/plain`) {
+            complete(Girl.getUserBrokenLinksMemoized(user,html))
+          }
+        }
       }~
       path(Segment/Segment) { (user,repo) =>
-        complete(
-          Girl.getRepoBrokenLinksMemoized(user,repo)
-        )
+        parameters('html ? true) { html =>
+          respondWithMediaType(if (html) `text/html` else `text/plain`) {
+            complete(Girl.getRepoBrokenLinksMemoized(user,repo,html))
+          }
+        }
       }
     }~
     complete(HttpResponse(status = 404, entity = "404 Not found"))

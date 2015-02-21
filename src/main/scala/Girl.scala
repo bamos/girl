@@ -3,6 +3,7 @@ package io.github.bamos
 import com.typesafe.scalalogging.Logger
 import org.jsoup.{Jsoup,HttpStatusException,UnsupportedMimeTypeException}
 import org.kohsuke.github.{GitHub,GHRepository}
+import org.markdown4j.Markdown4jProcessor
 import org.slf4j.LoggerFactory
 import spray.caching.{LruCache,Cache}
 
@@ -20,39 +21,48 @@ object Girl {
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
   val gh = GitHub.connectUsingOAuth(
     scala.util.Properties.envOrElse("GITHUB_TOKEN",""))
+  val mdProc = new Markdown4jProcessor()
 
   val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
-    repoCache(userName+"/"+repoName) {
-      getRepoBrokenLinks(userName,repoName)
+  def getRepoBrokenLinksMemoized(userName: String, repoName: String,
+      html: Boolean = false) =
+    repoCache(userName+"/"+repoName+"/"+html) {
+      getRepoBrokenLinks(userName,repoName,html)
     }
 
-  def getRepoBrokenLinks(userName: String, repoName: String): String = {
+  def getRepoBrokenLinks(userName: String, repoName: String,
+      html: Boolean = false): String = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val user = gh.getUser(userName)
     val repo = user.getRepository(repoName)
-    getBrokenLinksStr(userName,repoName,repo)
+    val md = getBrokenLinksStr(userName,repoName,repo)
+    if (html) mdProc.process(md)
+    else md
   }
 
   val userNameCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getUserBrokenLinksMemoized(userName: String) = userNameCache(userName) {
-    getUserBrokenLinks(userName)
-  }
+  def getUserBrokenLinksMemoized(userName: String, html: Boolean = false) =
+    userNameCache(userName+"/"+html) {
+      getUserBrokenLinks(userName, html)
+    }
 
-  def getUserBrokenLinks(userName: String): String = {
+  def getUserBrokenLinks(userName: String, html: Boolean = false): String = {
     logger.info(s"getUserBrokenLinks: $userName")
     val user = gh.getUser(userName)
     val repos = user.getRepositories().par
     val allBrokenLinks = repos.collect{
       case (repoName,repo) if !repo.isPrivate =>
-        getBrokenLinksStr(userName,repoName,repo)}
-    allBrokenLinks.mkString("\n\n")
+        (repoName,getBrokenLinksStr(userName,repoName,repo))}
+    .toSeq.seq.sortBy(_._1).map(_._2)
+    val md = allBrokenLinks.mkString("\n\n")
+    if (html) mdProc.process(md)
+    else md
   }
 
   private def getBrokenLinksStr(userName: String, repoName: String,
     repo: GHRepository) = {
     val brokenLinks = getBrokenLinks(repo).map(" + "+_).mkString("\n")
-    s"""|# $repoName (https://github.com/$userName/$repoName)
+    s"""|# [$repoName](https://github.com/$userName/$repoName)
         |
         |$brokenLinks""".stripMargin
   }
