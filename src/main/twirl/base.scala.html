@@ -51,11 +51,18 @@ body {
   @content
 
   <script src="/js/bootstrap.js"></script>
+  <script src="/js/sp.js"></script>
   <script>
 function changePage(username) {
   username = prompt('<Github username> or <Github username>/<Repository>', username);
   if (username) window.location.href = '/' + username;
 }
+
+try {
+  var snowplowTracker = Snowplow.getTrackerUrl('derecho.elijah.cs.cmu.edu:8080');
+  snowplowTracker.enableLinkTracking();
+  snowplowTracker.trackPageView();
+} catch (err) {}
   </script>
 </body>
 </html>
