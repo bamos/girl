@@ -82,8 +82,8 @@ object Girl {
     } catch {
       case _: UnsupportedMimeTypeException | _: SSLProtocolException => true
       case e: SocketTimeoutException =>
-        // a timeout might just be a slow page that doesn't
-        // respond within a second. Retry once.
+        // A timeout might be a slow page that doesn't
+        // respond within soon enough. Retry once.
         println(url,e,attempt_num)
         if (attempt_num < 2) isValidURL(url,attempt_num+1)
         else false
