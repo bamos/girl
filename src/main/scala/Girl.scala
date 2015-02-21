@@ -1,7 +1,10 @@
 package io.github.bamos
 
-import org.jsoup.Jsoup
+import com.typesafe.scalalogging.Logger
+import org.jsoup.{Jsoup,HttpStatusException,UnsupportedMimeTypeException}
 import org.kohsuke.github.{GitHub,GHRepository}
+import org.slf4j.LoggerFactory
+import spray.caching.{LruCache,Cache}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
@@ -9,13 +12,12 @@ import scala.concurrent.duration._
 import java.io.IOException
 import java.net.{MalformedURLException,SocketTimeoutException}
 import javax.net.ssl.SSLProtocolException
-import org.jsoup.{HttpStatusException,UnsupportedMimeTypeException}
 
-import spray.caching.{LruCache,Cache}
 
 object Girl {
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
   val gh = GitHub.connectUsingOAuth(
     scala.util.Properties.envOrElse("GITHUB_TOKEN",""))
 
@@ -26,6 +28,7 @@ object Girl {
     }
 
   def getRepoBrokenLinks(userName: String, repoName: String): String = {
+    logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val user = gh.getUser(userName)
     val repo = user.getRepository(repoName)
     getBrokenLinksStr(userName,repoName,repo)
@@ -37,6 +40,7 @@ object Girl {
   }
 
   def getUserBrokenLinks(userName: String): String = {
+    logger.info(s"getUserBrokenLinks: $userName")
     val user = gh.getUser(userName)
     val repos = user.getRepositories().par
     val allBrokenLinks = repos.collect{
