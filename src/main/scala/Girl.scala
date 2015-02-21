@@ -77,7 +77,7 @@ object Girl {
         .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0")
         .timeout(2000*attempt_num)
         .execute()
-      logger.info(url,doc.statusCode)
+      logger.info(Seq(url,doc.statusCode).mkString(","))
       if (doc.statusCode != 200) false
       else true
     } catch {
@@ -85,11 +85,11 @@ object Girl {
       case e: SocketTimeoutException =>
         // A timeout might be a slow page that doesn't
         // respond within soon enough. Retry once.
-        logger.info(url,e,attempt_num)
+        logger.info(Seq(url,e,attempt_num).map(_.toString).mkString(","))
         if (attempt_num < 2) isValidURL(url,attempt_num+1)
         else false
       case e: Throwable => {
-        logger.info(url,e,attempt_num)
+        logger.info(Seq(url,e).map(_.toString).mkString(", "))
         false
       }
     }
