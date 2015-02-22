@@ -24,6 +24,9 @@ object Whitelist {
     "twitter",
     "github",
     "facebook",
-    "square"
+    "square",
+    "amplab",
+    "fnothaft",
+    "bigdatagenomics"
   ).map(_.toLowerCase)
 }
