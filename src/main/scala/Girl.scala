@@ -8,6 +8,7 @@ import spray.caching.{LruCache,Cache}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
+import scala.util.Try
 
 import java.io.IOException
 import java.net.{MalformedURLException,SocketTimeoutException}
@@ -65,8 +66,8 @@ object Girl {
   }
 
   private def getBrokenLinks(repo: GHRepository) = {
-    try analyzeReadme(repo.getReadme().getHtmlUrl())
-    catch { case _: Throwable => (0,Seq()) }
+    Try(analyzeReadme(repo.getReadme().getHtmlUrl()))
+      .getOrElse((0,Seq()))
   }
 
   private def analyzeReadme(url: String) = {
