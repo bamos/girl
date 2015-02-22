@@ -53,7 +53,7 @@ object Girl {
         user.getFollowersCount() > reqFollowers) {
       val repos = user.getRepositories().par
       val allBrokenLinks = repos.collect{
-        case (repoName,repo) if !repo.isPrivate =>
+        case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
           val (numChecked, brokenLinks) = getBrokenLinks(repo)
           (repoName,numChecked,brokenLinks)}.toSeq.seq.sortBy(_._1)
       val totalLinks = allBrokenLinks.map(_._2).reduce(_+_)
