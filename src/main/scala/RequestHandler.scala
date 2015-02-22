@@ -51,7 +51,7 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       path("demo") {
         respondWithMediaType(`text/html`) {
           complete(html.index(
-            "user-demo",
+            "demo",
             Seq(
               ("repo-1",(0 until 3).map("bad-link-"+_)),
               ("repo-2",(0 until 6).map("bad-link-"+_)),
