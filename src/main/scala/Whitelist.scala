@@ -27,6 +27,7 @@ object Whitelist {
     "square",
     "amplab",
     "fnothaft",
-    "bigdatagenomics"
+    "bigdatagenomics",
+    "homebrew"
   ).map(_.toLowerCase)
 }
