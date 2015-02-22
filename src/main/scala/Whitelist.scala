@@ -29,6 +29,8 @@ object Whitelist {
     "fnothaft",
     "bigdatagenomics",
     "homebrew",
-    "puppetlabs"
+    "puppetlabs",
+    "rails",
+    "google"
   ).map(_.toLowerCase)
 }
