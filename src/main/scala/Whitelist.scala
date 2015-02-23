@@ -24,6 +24,14 @@ object Whitelist {
     "twitter",
     "github",
     "facebook",
-    "etsy"
+    "etsy",
+    "square",
+    "amplab",
+    "fnothaft",
+    "bigdatagenomics",
+    "homebrew",
+    "puppetlabs",
+    "rails",
+    "google"
   ).map(_.toLowerCase)
 }

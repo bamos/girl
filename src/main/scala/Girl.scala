@@ -8,6 +8,7 @@ import spray.caching.{LruCache,Cache}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
+import scala.util.Try
 
 import java.io.IOException
 import java.net.{MalformedURLException,SocketTimeoutException}
@@ -52,7 +53,7 @@ object Girl {
         user.getFollowersCount() > reqFollowers) {
       val repos = user.getRepositories().par
       val allBrokenLinks = repos.collect{
-        case (repoName,repo) if !repo.isPrivate =>
+        case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
           val (numChecked, brokenLinks) = getBrokenLinks(repo)
           (repoName,numChecked,brokenLinks)}.toSeq.seq.sortBy(_._1)
       val totalLinks = allBrokenLinks.map(_._2).reduce(_+_)
@@ -65,8 +66,8 @@ object Girl {
   }
 
   private def getBrokenLinks(repo: GHRepository) = {
-    try analyzeReadme(repo.getReadme().getHtmlUrl())
-    catch { case _: Throwable => (0,Seq()) }
+    Try(analyzeReadme(repo.getReadme().getHtmlUrl()))
+      .getOrElse((0,Seq()))
   }
 
   private def analyzeReadme(url: String) = {
