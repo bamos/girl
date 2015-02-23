@@ -32,6 +32,11 @@ object Whitelist {
     "homebrew",
     "puppetlabs",
     "rails",
-    "google"
+    "google",
+    "okfn",
+    "humblesoftware",
+    "ecomfe",
+    "mozilla",
+    "spine"
   ).map(_.toLowerCase)
 }
