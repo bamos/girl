@@ -32,7 +32,7 @@ object Girl {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val user = gh.getUser(userName)
     if (Whitelist.users.contains(userName.toLowerCase) ||
-        user.getFollowersCount() > reqFollowers) {
+        user.getFollowersCount() >= reqFollowers) {
       val repo = user.getRepository(repoName)
       val (totalChecked, brokenLinks) = getBrokenLinks(repo)
       html.index(userName,Seq((repoName,brokenLinks)),
