@@ -23,6 +23,7 @@ object Whitelist {
     "geotrellis",
     "twitter",
     "github",
-    "facebook"
+    "facebook",
+    "etsy"
   ).map(_.toLowerCase)
 }
