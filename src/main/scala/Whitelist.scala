@@ -38,6 +38,7 @@ object Whitelist {
     "humblesoftware",
     "ecomfe",
     "mozilla",
-    "spine"
+    "spine",
+    "jez"
   ).map(_.toLowerCase)
 }
