@@ -15,36 +15,34 @@ import java.net.{MalformedURLException,SocketTimeoutException}
 import javax.net.ssl.SSLProtocolException
 
 
+case class ReadmeAnalysis(totalLinks: Int, checkedLinks: Int,
+  brokenLinks: Seq[(String,String)])
+
 object Girl {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
   val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
   val reqFollowers = 50
-
-  val repoCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
-    repoCache(userName+"/"+repoName) {
-      getRepoBrokenLinks(userName,repoName)
-    }
+  val maxLinksPerRepo = 100
+  val initialTimeoutMs = 2000
+  val maxURLAttempts = 2
+  val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   def getRepoBrokenLinks(userName: String, repoName: String) = {
-    logger.info(s"getRepoBrokenLinks: $userName/$repoName")
+    logger.info(s"getRepoBrokenLinks: $userName")
     val user = gh.getUser(userName)
     if (Whitelist.users.contains(userName.toLowerCase) ||
-        user.getFollowersCount() >= reqFollowers) {
+        user.getFollowersCount() > reqFollowers) {
       val repo = user.getRepository(repoName)
-      val (totalChecked, brokenLinks) = getBrokenLinks(repo)
-      html.index(userName,Seq((repoName,brokenLinks)),
-        brokenLinks.size,totalChecked).toString
+      val analysis = analyzeRepo(repo)
+      html.index(userName,Seq((repoName,analysis)),
+        analysis.totalLinks, analysis.checkedLinks,
+        analysis.brokenLinks.size).toString
     } else {
       html.whitelist(userName, reqFollowers).toString
     }
   }
-
-  val userNameCache: Cache[String] = LruCache(timeToLive = 24 hours)
-  def getUserBrokenLinksMemoized(userName: String) =
-    userNameCache(userName) {getUserBrokenLinks(userName)}
 
   def getUserBrokenLinks(userName: String) = {
     logger.info(s"getUserBrokenLinks: $userName")
@@ -54,50 +52,60 @@ object Girl {
       val repos = user.getRepositories().par
       val allBrokenLinks = repos.collect{
         case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
-          val (numChecked, brokenLinks) = getBrokenLinks(repo)
-          (repoName,numChecked,brokenLinks)}.toSeq.seq.sortBy(_._1)
-      val totalLinks = allBrokenLinks.map(_._2).reduce(_+_)
-      val numBroken = allBrokenLinks.map(_._3.size).reduce(_+_)
-      html.index(userName,allBrokenLinks.map(x => (x._1,x._3)),
-        numBroken,totalLinks).toString
+          val readmeAnalysis = analyzeRepo(repo)
+          (repoName,readmeAnalysis)}
+        .toSeq.seq.sortBy(_._1)
+      val numTotal = allBrokenLinks.map(_._2.totalLinks).reduce(_+_)
+      val numChecked = allBrokenLinks.map(_._2.checkedLinks).reduce(_+_)
+      val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).reduce(_+_)
+      html.index(userName,
+        allBrokenLinks,numTotal,numChecked,numBroken).toString
     } else {
       html.whitelist(userName, reqFollowers).toString
     }
   }
 
-  private def getBrokenLinks(repo: GHRepository) = {
+  private def analyzeRepo(repo: GHRepository): ReadmeAnalysis = {
     Try(analyzeReadme(repo.getReadme().getHtmlUrl()))
-      .getOrElse((0,Seq()))
+      .getOrElse(ReadmeAnalysis(0,0,Seq.empty[(String,String)]))
   }
 
-  private def analyzeReadme(url: String) = {
+  private def analyzeReadme(url: String): ReadmeAnalysis = {
     val readme_doc = Jsoup.connect(url).get()
-    val links = readme_doc.select("div#readme").select("a[href]")
-    val invalidLinks = links.map(_.attr("abs:href")).par.filter(!isValidURL(_))
-    (links.size,invalidLinks.seq)
+    val anchors = readme_doc.select("div#readme").select("a[href]")
+    val trimmedAnchors = anchors.take(maxLinksPerRepo).par
+    val invalidLinks = trimmedAnchors
+      .map(_.attr("abs:href"))
+      .flatMap(checkURL(_))
+      .seq
+    ReadmeAnalysis(anchors.size, trimmedAnchors.size, invalidLinks)
   }
 
-  private def isValidURL(url: String, attempt_num: Int = 1): Boolean = {
-    if (url.startsWith("mailto:")) return true
+  // Output is None if the URL is valid and a tuple with the
+  // url checked and error message string otherwise.
+  private def checkURL(url:String, attemptNum:Int=1):
+      Option[(String,String)] = {
+    if (url.startsWith("mailto:")) return None
     try {
       val doc = Jsoup.connect(url)
-        .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0")
-        .timeout(2000*attempt_num)
+        .userAgent(ua)
+        .timeout(initialTimeoutMs*attemptNum)
         .execute()
       logger.info(Seq(url,doc.statusCode).mkString(","))
-      if (doc.statusCode != 200) false
-      else true
+      if (doc.statusCode != 200) Some(url,"Status is not 200")
+      else None
     } catch {
-      case _: UnsupportedMimeTypeException | _: SSLProtocolException => true
+      case _: UnsupportedMimeTypeException | _: SSLProtocolException =>
+        None
       case e: SocketTimeoutException =>
         // A timeout might be a slow page that doesn't
         // respond within soon enough. Retry once.
-        logger.info(Seq(url,e,attempt_num).map(_.toString).mkString(","))
-        if (attempt_num < 2) isValidURL(url,attempt_num+1)
-        else false
+        logger.info(Seq(url,e,attemptNum).map(_.toString).mkString(","))
+        if (attemptNum < maxURLAttempts) checkURL(url,attemptNum+1)
+        else Some(url,"Timed out")
       case e: Throwable => {
         logger.info(Seq(url,e).map(_.toString).mkString(", "))
-        false
+        Some(url,"Other exception")
       }
     }
   }
