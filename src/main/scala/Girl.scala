@@ -25,43 +25,53 @@ object Girl {
   val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
   val reqFollowers = 50
   val maxLinksPerRepo = 100
-  val initialTimeoutMs = 2000
+  val initialTimeoutMs = 4000
   val maxURLAttempts = 2
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   def getRepoBrokenLinks(userName: String, repoName: String) = {
-    logger.info(s"getRepoBrokenLinks: $userName")
-    val user = gh.getUser(userName)
-    if (Whitelist.users.contains(userName.toLowerCase) ||
+    logger.info(s"getRepoBrokenLinks: $userName/$repoName")
+    val userTry = Try(gh.getUser(userName))
+    if (userTry.isSuccess) {
+      val user = userTry.get
+      if (Whitelist.users.contains(userName.toLowerCase) ||
         user.getFollowersCount() > reqFollowers) {
-      val repo = user.getRepository(repoName)
-      val analysis = analyzeRepo(repo)
-      html.index(userName,Seq((repoName,analysis)),
-        analysis.totalLinks, analysis.checkedLinks,
-        analysis.brokenLinks.size).toString
+        val repo = user.getRepository(repoName)
+        val analysis = analyzeRepo(repo)
+        html.index(userName,Seq((repoName,analysis)),
+          analysis.totalLinks, analysis.checkedLinks,
+          analysis.brokenLinks.size).toString
+      } else {
+        html.whitelist(userName, reqFollowers).toString
+      }
     } else {
-      html.whitelist(userName, reqFollowers).toString
+      html.usernotfound(userName).toString
     }
   }
 
   def getUserBrokenLinks(userName: String) = {
     logger.info(s"getUserBrokenLinks: $userName")
-    val user = gh.getUser(userName)
-    if (Whitelist.users.contains(userName.toLowerCase) ||
+    val userTry = Try(gh.getUser(userName))
+    if (userTry.isSuccess) {
+      val user = userTry.get
+      if (Whitelist.users.contains(userName.toLowerCase) ||
         user.getFollowersCount() > reqFollowers) {
-      val repos = user.getRepositories().par
-      val allBrokenLinks = repos.collect{
-        case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
-          val readmeAnalysis = analyzeRepo(repo)
-          (repoName,readmeAnalysis)}
-        .toSeq.seq.sortBy(_._1)
-      val numTotal = allBrokenLinks.map(_._2.totalLinks).reduce(_+_)
-      val numChecked = allBrokenLinks.map(_._2.checkedLinks).reduce(_+_)
-      val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).reduce(_+_)
-      html.index(userName,
-        allBrokenLinks,numTotal,numChecked,numBroken).toString
+        val repos = user.getRepositories().par
+        val allBrokenLinks = repos.collect{
+          case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
+            val readmeAnalysis = analyzeRepo(repo)
+            (repoName,readmeAnalysis)}
+          .toSeq.seq.sortBy(_._1)
+        val numTotal = allBrokenLinks.map(_._2.totalLinks).reduce(_+_)
+        val numChecked = allBrokenLinks.map(_._2.checkedLinks).reduce(_+_)
+        val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).reduce(_+_)
+        html.index(userName,
+          allBrokenLinks,numTotal,numChecked,numBroken).toString
+      } else {
+        html.whitelist(userName, reqFollowers).toString
+      }
     } else {
-      html.whitelist(userName, reqFollowers).toString
+      html.usernotfound(userName).toString
     }
   }
 
