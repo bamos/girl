@@ -29,6 +29,17 @@ object Girl {
   val maxURLAttempts = 2
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
+  val repoCache: Cache[String] = LruCache(timeToLive=24 hours)
+  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
+    repoCache(userName+"/"+repoName) {
+      getRepoBrokenLinks(userName,repoName)
+    }
+
+  val userCache: Cache[String] = LruCache(timeToLive=24 hours)
+  def getUserBrokenLinksMemoized(userName: String) =
+    repoCache(userName) { getUserBrokenLinks(userName) }
+
+
   def getRepoBrokenLinks(userName: String, repoName: String) = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val userTry = Try(gh.getUser(userName))

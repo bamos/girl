@@ -65,12 +65,12 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       }~
       path(Segment) { user =>
         respondWithMediaType(`text/html`) {
-          complete(Girl.getUserBrokenLinks(user))
+          complete(Girl.getUserBrokenLinksMemoized(user))
         }
       }~
       path(Segment/Segment) { (user,repo) =>
         respondWithMediaType(`text/html`) {
-          complete(Girl.getRepoBrokenLinks(user,repo))
+          complete(Girl.getRepoBrokenLinksMemoized(user,repo))
         }
       }
     }~
