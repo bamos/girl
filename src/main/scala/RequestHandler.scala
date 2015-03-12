@@ -49,6 +49,11 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       path(Rest) { path =>
         getFromResource("bootstrap/%s" format path)
       }~
+      path("@top") {
+        respondWithMediaType(`text/html`) {
+          complete(Girl.getTopMemoized())
+        }
+      }~
       path("@demo") {
         respondWithMediaType(`text/html`) {
           complete(html.index(

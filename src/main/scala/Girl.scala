@@ -2,7 +2,6 @@ package io.github.bamos
 
 import com.typesafe.scalalogging.Logger
 import org.jsoup.{Jsoup,HttpStatusException,UnsupportedMimeTypeException}
-import org.kohsuke.github.{GitHub,GHRepository}
 import org.slf4j.LoggerFactory
 import spray.caching.{LruCache,Cache}
 
@@ -14,19 +13,32 @@ import java.io.IOException
 import java.net.{MalformedURLException,SocketTimeoutException}
 import javax.net.ssl.SSLProtocolException
 
+import org.kohsuke.github.{GitHub,GHRepository}
+import org.eclipse.egit.github.core.Repository
+import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.service.{ContentsService,RepositoryService,UserService}
 
 case class ReadmeAnalysis(totalLinks: Int, checkedLinks: Int,
   brokenLinks: Seq[(String,String)])
+
+// Eclipse GitHub (for searching)
+object egh {
+  val client = (new GitHubClient()).setOAuth2Token(sys.env("GITHUB_TOKEN"))
+  val user = new UserService(client)
+  val repo = new RepositoryService(client)
+  val contents = new ContentsService(client)
+}
 
 object Girl {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val logger = Logger(LoggerFactory.getLogger(this.getClass.getName))
-  val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN"))
+  val gh = GitHub.connectUsingOAuth(sys.env("GITHUB_TOKEN")) // kohsuke
   val reqFollowers = 50
   val maxLinksPerRepo = 100
   val initialTimeoutMs = 4000
   val maxURLAttempts = 2
+  val numTop = 10
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   val repoCache: Cache[String] = LruCache(timeToLive=24 hours)
@@ -39,6 +51,8 @@ object Girl {
   def getUserBrokenLinksMemoized(userName: String) =
     repoCache(userName) { getUserBrokenLinks(userName) }
 
+  val topCache: Cache[String] = LruCache(timeToLive=24 hours)
+  def getTopMemoized() = topCache() {getTop()}
 
   def getRepoBrokenLinks(userName: String, repoName: String) = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
@@ -84,6 +98,19 @@ object Girl {
     } else {
       html.usernotfound(userName).toString
     }
+  }
+
+  def getTop() = {
+    val allBrokenLinks = egh.repo.searchRepositories("stars:>1")
+        .take(numTop).par.map{ repo =>
+      val fullRepoName = repo.getOwner()+"/"+repo.getName()
+      val repoObj = gh.getRepository(fullRepoName)
+      (fullRepoName, repoObj.getWatchers(), analyzeRepo(repoObj))
+    }.toSeq.seq.sortBy(_._2)(Ordering[Int].reverse)
+    val numTotal = allBrokenLinks.map(_._3.totalLinks).reduce(_+_)
+    val numChecked = allBrokenLinks.map(_._3.checkedLinks).reduce(_+_)
+    val numBroken = allBrokenLinks.map(_._3.brokenLinks.size).reduce(_+_)
+    html.top(numTop,allBrokenLinks,numTotal,numChecked,numBroken).toString
   }
 
   private def analyzeRepo(repo: GHRepository): ReadmeAnalysis = {
