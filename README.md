@@ -12,9 +12,9 @@ A public version is hosted at <http://derecho.elijah.cs.cmu.edu:8585/@demo>.
 the [top 1000 GitHub repositories](https://github.com/search?q=stars%3A%3E1)
 by number of stars.
 This project found 416 broken links (with some false positives) when this
-feature was released on 2015/03/15.
+feature was released on 2015/03/12.
 
-![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-15.png)
+![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-12.png)
 
 ## Whitelist
 To prevent misuse, girl restricts usage to
