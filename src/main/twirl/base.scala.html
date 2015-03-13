@@ -40,7 +40,7 @@ body {
         <ul class="nav navbar-nav">
           <!-- <li class="active"><a href="/">Home</a></li> -->
           <li><a href="http://github.com/bamos/girl">GitHub</a></li>
-          <li><a href="javascript:changePage('bamos')">Try Yours</a></li>
+          <li><a href="/@top">Top GitHub Repos</a></li>
         </ul>
       </div>
     </div>
@@ -57,6 +57,11 @@ function changePage(username) {
   username = prompt('<Github username> or <Github username>/<Repository>', username);
   if (username) window.location.href = '/' + username;
 }
+
+$('#tryForm').submit(function(event) {
+  window.location.href = '/'+document.forms["tryForm"]["suffix"].value;
+  return false;
+});
 
 try {
   var snowplowTracker = Snowplow.getTrackerUrl('derecho.elijah.cs.cmu.edu:8080');

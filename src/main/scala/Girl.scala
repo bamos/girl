@@ -38,7 +38,7 @@ object Girl {
   val maxLinksPerRepo = 100
   val initialTimeoutMs = 4000
   val maxURLAttempts = 2
-  val numTop = 10
+  val numTop = 1000
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   val repoCache: Cache[String] = LruCache(timeToLive=24 hours)
@@ -153,7 +153,11 @@ object Girl {
         else Some(url,"Timed out")
       case e: Throwable => {
         logger.info(Seq(url,e).map(_.toString).mkString(", "))
-        Some(url,"Other exception")
+        if (url.contains("localhost")) {
+          Some(url,"Other exception. This is likely a false positive caused by documentation using localhost")
+        } else {
+          Some(url,"Other exception")
+        }
       }
     }
   }
