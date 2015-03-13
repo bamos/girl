@@ -1,4 +1,5 @@
 # GitHub README Link Checker
+[![Build Status](https://travis-ci.org/bamos/girl.svg?branch=master)](https://travis-ci.org/bamos/girl)
 
 ![](https://raw.githubusercontent.com/bamos/girl/master/screenshot.png)
 
