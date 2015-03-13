@@ -159,7 +159,7 @@ object Girl {
         else Some(url,"Timed out")
       case e: Throwable => {
         logger.info(Seq(url,e).map(_.toString).mkString(", "))
-        if (url.contains("localhost") || url.contains("127.0.0.1")) {
+        if (Seq("127.0.0.1","localhost","0.0.0.0").exists(url.contains)) {
           None
         } else {
           Some(url,"Other exception")
