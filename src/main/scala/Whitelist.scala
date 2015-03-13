@@ -44,6 +44,8 @@ object Whitelist {
     "coreos",
     "scotty-web",
     "vishnuravi",
-    "cimpress-mcp"
+    "cimpress-mcp",
+    "creativecommons",
+    "cc-archive"
   ).map(_.toLowerCase)
 }
