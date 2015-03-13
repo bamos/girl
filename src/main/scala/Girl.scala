@@ -14,7 +14,7 @@ import java.net.{MalformedURLException,SocketTimeoutException}
 import javax.net.ssl.SSLProtocolException
 
 import org.kohsuke.github.{GitHub,GHRepository}
-import org.eclipse.egit.github.core.Repository
+import org.eclipse.egit.github.core.{Repository,SearchRepository}
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.{ContentsService,RepositoryService,UserService}
 
@@ -38,7 +38,7 @@ object Girl {
   val maxLinksPerRepo = 100
   val initialTimeoutMs = 4000
   val maxURLAttempts = 2
-  val numTop = 1000
+  val numTop = 2500
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   val repoCache: Cache[String] = LruCache(timeToLive=24 hours)
@@ -101,8 +101,14 @@ object Girl {
   }
 
   def getTop() = {
-    val allBrokenLinks = egh.repo.searchRepositories("stars:>1")
-        .take(numTop).par.map{ repo =>
+    val repos = scala.collection.mutable.Buffer[SearchRepository]()
+    var pageNum = 1
+    // TODO: Re-write this using better scala features.
+    while (repos.size < numTop) {
+      repos ++= egh.repo.searchRepositories("stars:>1",pageNum).seq
+      pageNum += 1
+    }
+    val allBrokenLinks = repos.take(numTop).par.map{ repo =>
       val fullRepoName = repo.getOwner()+"/"+repo.getName()
       val repoObj = gh.getRepository(fullRepoName)
       (fullRepoName, repoObj.getWatchers(), analyzeRepo(repoObj))
