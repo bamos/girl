@@ -87,9 +87,9 @@ object Girl {
             val readmeAnalysis = analyzeRepo(repo)
             (repoName,readmeAnalysis)}
           .toSeq.seq.sortBy(_._1)
-        val numTotal = allBrokenLinks.map(_._2.totalLinks).reduce(_+_)
-        val numChecked = allBrokenLinks.map(_._2.checkedLinks).reduce(_+_)
-        val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).reduce(_+_)
+        val numTotal = allBrokenLinks.map(_._2.totalLinks).fold(0)(_+_)
+        val numChecked = allBrokenLinks.map(_._2.checkedLinks).fold(0)(_+_)
+        val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).fold(0)(_+_)
         html.index(userName,
           allBrokenLinks,numTotal,numChecked,numBroken).toString
       } else {
