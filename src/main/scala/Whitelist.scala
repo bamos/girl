@@ -43,6 +43,7 @@ object Whitelist {
     "haskell",
     "coreos",
     "scotty-web",
-    "vishnuravi"
+    "vishnuravi",
+    "cimpress-mcp"
   ).map(_.toLowerCase)
 }
