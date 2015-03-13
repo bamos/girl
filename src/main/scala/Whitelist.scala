@@ -39,6 +39,9 @@ object Whitelist {
     "ecomfe",
     "mozilla",
     "spine",
-    "jez"
+    "jez",
+    "haskell",
+    "coreos",
+    "scotty-web"
   ).map(_.toLowerCase)
 }
