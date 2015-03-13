@@ -13,6 +13,8 @@ the [top 1000 GitHub repositories](https://github.com/search?q=stars%3A%3E1)
 by number of stars.
 This project found 416 broken links (with some false positives) when this
 feature was released on 2015/03/12.
+See the page's history on the
+[Wayback Machine](https://web.archive.org/web/20150313120353/http://derecho.elijah.cs.cmu.edu:8585/@top).
 
 ![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-12.png)
 
