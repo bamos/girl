@@ -20,6 +20,7 @@ object Whitelist {
   "coreos",
   "creativecommons",
   "darksigma",
+  "davewood",
   "docker",
   "ecomfe",
   "etsy",
