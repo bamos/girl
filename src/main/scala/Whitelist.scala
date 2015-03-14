@@ -36,6 +36,7 @@ object Whitelist {
   "jez",
   "mozilla",
   "okfn",
+  "OpenRA",
   "puppetlabs",
   "rails",
   "rhema",
