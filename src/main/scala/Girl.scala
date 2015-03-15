@@ -87,9 +87,9 @@ object Girl {
             val readmeAnalysis = analyzeRepo(repo)
             (repoName,readmeAnalysis)}
           .toSeq.seq.sortBy(_._1)
-        val numTotal = allBrokenLinks.map(_._2.totalLinks).fold(0)(_+_)
-        val numChecked = allBrokenLinks.map(_._2.checkedLinks).fold(0)(_+_)
-        val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).fold(0)(_+_)
+        val numTotal = allBrokenLinks.map(_._2.totalLinks).sum
+        val numChecked = allBrokenLinks.map(_._2.checkedLinks).sum
+        val numBroken = allBrokenLinks.map(_._2.brokenLinks.size).sum
         html.index(userName,
           allBrokenLinks,numTotal,numChecked,numBroken).toString
       } else {
@@ -113,9 +113,9 @@ object Girl {
       val repoObj = gh.getRepository(fullRepoName)
       (fullRepoName, repoObj.getWatchers(), analyzeRepo(repoObj))
     }.toSeq.seq.sortBy(_._2)(Ordering[Int].reverse)
-    val numTotal = allBrokenLinks.map(_._3.totalLinks).reduce(_+_)
-    val numChecked = allBrokenLinks.map(_._3.checkedLinks).reduce(_+_)
-    val numBroken = allBrokenLinks.map(_._3.brokenLinks.size).reduce(_+_)
+    val numTotal = allBrokenLinks.map(_._3.totalLinks).sum
+    val numChecked = allBrokenLinks.map(_._3.checkedLinks).sum
+    val numBroken = allBrokenLinks.map(_._3.brokenLinks.size).sum
     html.top(numTop,allBrokenLinks,numTotal,numChecked,numBroken).toString
   }
 
