@@ -55,15 +55,18 @@ which re-compiles and restarts the server upon source code changes.
 [sbt]: http://www.scala-sbt.org/
 [sbt-revolver]: https://github.com/spray/sbt-revolver
 
-## Dockerfile
+## Deployment with Docker
 
-If you want to run locally but don't fancy installing sbt you can use docker to install girl into a local container.
-You will need to edit the Dockerfile to insert your github token.
-Then, in the girl directory:
+Girl can be deployed as a container with [Docker](https://www.docker.com/).
+After replacing the string `<token>` in the
+[Dockerfile](https://github.com/bamos/girl/blob/master/Dockerfile)
+with your GitHub API token, the following command
+will build and start the girl as an HTTP server on port 8585
+of the container.
+
 ```
 docker build -t girl .
 ```
-This will build and start the server on port 8585. Now you just need to point your browser at the ip of the container.
 
 ## Licensing
 All portions are [MIT-licensed](https://github.com/bamos/girl/blob/master/LICENSE.mit).
