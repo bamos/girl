@@ -68,7 +68,7 @@ of the container.
 docker build -t girl .
 ```
 
-## Running as a system service.
+## Running as a System Service
 [girl.service](https://github.com/bamos/girl/blob/master/girl.service)
 is an example [systemd](http://www.freedesktop.org/wiki/Software/systemd/)
 service that calls
