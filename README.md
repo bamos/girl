@@ -76,7 +76,7 @@ service that calls
 to automatically start girl with the system.
 
 Modify the paths to this repo on your system in both of the scripts
-and copy `girl.service` to /etc/systemd/system/girl.service.
+and copy `girl.service` to `/etc/systemd/system/girl.service`.
 A symlink will not work, see
 [this bug report](https://bugzilla.redhat.com/show_bug.cgi?id=955379)
 for more details.
