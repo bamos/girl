@@ -1,3 +1,19 @@
+# This provides an example systemd service to run girl.
+# To use this, copy the file to /etc/systemd/system/girl.service.
+# A symlink will not work, see this bug report for more details:
+# https://bugzilla.redhat.com/show_bug.cgi?id=955379
+#
+# Basic controls are:
+#   sudo systemctl start girl
+#   sudo systemctl stop girl
+#   sudo systemctl restart girl
+#
+# And run on startup with:
+#   sudo systemctl enable girl
+#
+# Brandon Amos <http://github.com/bamos>
+# 2015-04-11
+
 [Unit]
 Description=Girl Systemd service.
 
