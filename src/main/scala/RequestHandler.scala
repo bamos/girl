@@ -24,11 +24,12 @@ class RequestHandlerActor extends Actor with HttpService {
   private val collectorService = new RequestHandler(context)
 
   // Message loop for the Spray service.
-  def receive = handleTimeouts orElse runRoute(collectorService.collectorRoute)
+  def receive = handleTimeouts orElse
+    runRoute(collectorService.collectorRoute)
 
   def handleTimeouts: Receive = {
     case Timedout(_) => sender !
-      HttpResponse(status = 408, entity = "Error: Page timed out.")
+      HttpResponse(status=408, entity="Error: Page timed out.")
   }
 }
 
@@ -48,17 +49,22 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       path(Rest) { path =>
         getFromResource("bootstrap/%s" format path)
       }~
-      path("demo") {
+      path("@top") {
+        respondWithMediaType(`text/html`) {
+          complete(Girl.getTopMemoized())
+        }
+      }~
+      path("@demo") {
         respondWithMediaType(`text/html`) {
           complete(html.index(
             "demo",
             Seq(
-              ("repo-1",(0 until 3).map("bad-link-"+_)),
-              ("repo-2",(0 until 6).map("bad-link-"+_)),
-              ("repo-3",Seq())
+              ("repo-1",ReadmeAnalysis(1,1,Seq(("bad-link1","reason1")))),
+              ("repo-1",ReadmeAnalysis(1,1,Seq(("bad-link2","reason2"))))
             ),
-            9,
-            42).toString
+            2,
+            2,
+            2).toString
           )
         }
       }~
