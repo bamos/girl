@@ -6,6 +6,8 @@ object Whitelist {
     "adobe-research",
     "ajn123",
     "amplab",
+    "AndlyticsProject",
+    "AndyScherzinger",
     "bamos",
     "bigdatagenomics",
     "bryangarza",
