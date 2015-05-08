@@ -34,6 +34,7 @@ object Whitelist {
     "humblesoftware",
     "jebes",
     "jez",
+    "mortonfox",
     "mozilla",
     "ObeliskIsHuge",
     "okfn",
