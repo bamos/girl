@@ -8,6 +8,7 @@ object Whitelist {
     "amplab",
     "AndlyticsProject",
     "AndyScherzinger",
+    "aureooms",
     "bamos",
     "bigdatagenomics",
     "bryangarza",
