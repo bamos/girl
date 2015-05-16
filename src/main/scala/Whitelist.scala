@@ -44,6 +44,7 @@ object Whitelist {
     "rails",
     "rhema",
     "scotty-web",
+    "skogsbaer",
     "snowplow",
     "spine",
     "square",
