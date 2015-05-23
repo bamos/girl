@@ -1,12 +1,12 @@
 # GitHub README Link Checker
 [![Build Status](https://travis-ci.org/bamos/girl.svg?branch=master)](https://travis-ci.org/bamos/girl)
 
-![](https://raw.githubusercontent.com/bamos/girl/master/screenshot.png)
+<!-- ![](https://raw.githubusercontent.com/bamos/girl/master/screenshot.png) -->
 
 `girl` is a <b>Gi</b>thub <b>R</b>eadme <b>L</b>ink Checker
 served over HTTP with [Scala](http://scala-lang.org/)
 and [Spray](http://spray.io/).
-A public version is hosted at <http://derecho.elijah.cs.cmu.edu:8585/@demo>.
+A public version is hosted at <http://bamos.github.io/girl>.
 
 ## Broken Links in Top GitHub Repos
 <http://derecho.elijah.cs.cmu.edu:8585/@top> checks broken links in
@@ -17,7 +17,7 @@ feature was released on 2015/03/12.
 See the page's history on the
 [Wayback Machine](https://web.archive.org/web/20150313120353/http://derecho.elijah.cs.cmu.edu:8585/@top).
 
-![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-12.png)
+<!-- ![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-12.png) -->
 
 ## Whitelist
 To prevent misuse, girl restricts usage to
