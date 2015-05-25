@@ -8,12 +8,17 @@ served over HTTP with [Scala](http://scala-lang.org/)
 and [Spray](http://spray.io/).
 A public version is hosted at <http://bamos.github.io/girl>.
 
-## Broken Links in Top GitHub Repos
+## Broken Links in GitHub's Top Repos
 <http://derecho.elijah.cs.cmu.edu:8585/@top> checks broken links in
 the [top 1000 GitHub repositories](https://github.com/search?q=stars%3A%3E1)
 by number of stars.
-This project found 416 broken links (with some false positives)
-on 2015/03/12.
+The following table shows how the number of broken links in these
+repos has improved since girl's release.
+
+| Date       | Broken Links |
+|------------|--------------|
+| 2015/03/12 | 416          |
+| 2015/05/25 | 384          |
 
 <!-- ![](https://raw.githubusercontent.com/bamos/girl/master/top-screenshot-2015-03-12.png) -->
 
@@ -22,9 +27,9 @@ To prevent misuse, girl restricts usage to
 GitHub users with
 over 50 followers or users and organizations on the
 [whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala).
-Please add your accounts to the
-[whitelist](https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala)
-and submit a pull request to gain access. Thanks!
+Please add your accounts
+and submit a pull request to gain access.
+Thanks!
 
 ## Building
 
