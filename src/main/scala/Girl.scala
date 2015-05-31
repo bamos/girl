@@ -162,7 +162,7 @@ object Girl {
         if (Seq("127.0.0.1","localhost","0.0.0.0").exists(url.contains)) {
           None
         } else {
-          Some(url,"Other exception")
+          Some(url,"Other exception: " + e toString)
         }
       }
     }
