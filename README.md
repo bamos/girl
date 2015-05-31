@@ -9,7 +9,7 @@ and [Spray](http://spray.io/).
 A public version is hosted at <http://bamos.github.io/girl>.
 
 ## Broken Links in GitHub's Top Repos
-<http://derecho.elijah.cs.cmu.edu:8585/@top> checks broken links in
+<http://bamos.github.io/girl> checks broken links in
 the [top 1000 GitHub repositories](https://github.com/search?q=stars%3A%3E1)
 by number of stars.
 The following table shows how the number of broken links in these
