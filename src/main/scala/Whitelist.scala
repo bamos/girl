@@ -37,6 +37,7 @@ object Whitelist {
     "jez",
     "mortonfox",
     "mozilla",
+    "nickedes",
     "ObeliskIsHuge",
     "okfn",
     "OpenRA",
