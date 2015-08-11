@@ -41,6 +41,7 @@ object Whitelist {
     "ObeliskIsHuge",
     "okfn",
     "OpenRA",
+    "owncloud",
     "puppetlabs",
     "rails",
     "rhema",
