@@ -52,6 +52,7 @@ object Whitelist {
     "square",
     "tejasmanohar",
     "themattman",
+    "torch",
     "twitter",
     "vishnuravi",
     "VT-Magnum-Research",
