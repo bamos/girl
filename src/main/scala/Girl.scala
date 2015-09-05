@@ -124,15 +124,17 @@ object Girl {
       .getOrElse(ReadmeAnalysis(0,0,Seq.empty[(String,String)]))
   }
 
-  private def analyzeReadme(url: String): ReadmeAnalysis = {
-    val readme_doc = Jsoup.connect(url).get()
+  private def analyzeReadme(readmeUrl: String): ReadmeAnalysis = {
+    val readme_doc = Jsoup.connect(readmeUrl).get()
     val anchors = readme_doc.select("div#readme").select("a[href]")
-    val trimmedAnchors = anchors.take(maxLinksPerRepo).par
-    val invalidLinks = trimmedAnchors
+    val trimmedLinks = anchors
       .map(_.attr("abs:href"))
+      .filter(!_.contains(readmeUrl))
+      .take(maxLinksPerRepo).par
+    val invalidLinks = trimmedLinks
       .flatMap(checkURL(_))
       .seq
-    ReadmeAnalysis(anchors.size, trimmedAnchors.size, invalidLinks)
+    ReadmeAnalysis(anchors.size, trimmedLinks.size, invalidLinks)
   }
 
   // Output is None if the URL is valid and a tuple with the
