@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-caching" % "1.3.2",
   "io.spray" %% "spray-can" % "1.3.2",
   "io.spray" %% "spray-routing" % "1.3.2",
-  "org.jsoup" % "jsoup" % "1.8.1",
+  "org.jsoup" % "jsoup" % "1.8.3",
   "org.kohsuke" % "github-api" % "1.62",
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5",
   "org.scalaz" %% "scalaz-core" % "7.1.1",
