@@ -59,6 +59,7 @@ object Whitelist {
     "WalnutiQ",
     "welbornprod",
     "zmughal",
-    "LightTable"
+    "LightTable",
+    "philemonlloyds"
   ).map(_.toLowerCase)
 }
