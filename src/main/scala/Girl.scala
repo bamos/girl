@@ -83,7 +83,8 @@ object Girl {
         user.getFollowersCount() > reqFollowers) {
         val repos = user.getRepositories().par
         val allBrokenLinks = repos.collect{
-          case (repoName,repo) if !repo.isPrivate && !repo.isFork =>
+          case (repoName,repo) if !repo.isPrivate && !repo.isFork &&
+                                  repo.getOwnerName() == userName =>
             val readmeAnalysis = analyzeRepo(repo)
             (repoName,readmeAnalysis)}
           .toSeq.seq.sortBy(_._1)
