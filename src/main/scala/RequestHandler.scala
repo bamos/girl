@@ -1,7 +1,7 @@
 package io.github.bamos
 
 // Akka
-import akka.actor.{Actor,ActorRefFactory}
+import akka.actor.{Actor,ActorContext,ActorRefFactory}
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -19,12 +19,12 @@ import ExecutionContext.Implicits.global
 class RequestHandlerActor extends Actor with HttpService {
   implicit val timeout: Timeout = 2000.second // For the actor 'asks'
   import context.dispatcher
-  def actorRefFactory = context
+  implicit def actorRefFactory: ActorContext = context
 
   private val collectorService = new RequestHandler(context)
 
   // Message loop for the Spray service.
-  def receive = handleTimeouts orElse
+  def receive: Receive = handleTimeouts orElse
     runRoute(collectorService.collectorRoute)
 
   def handleTimeouts: Receive = {
@@ -34,7 +34,7 @@ class RequestHandlerActor extends Actor with HttpService {
 }
 
 class RequestHandler(context: ActorRefFactory) extends HttpService {
-  implicit def actorRefFactory = context
+  implicit def actorRefFactory: ActorRefFactory = context
   val collectorRoute = {
     get {
       pathSingleSlash {

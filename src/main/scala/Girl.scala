@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import spray.caching.{LruCache,Cache}
 
 import scala.collection.JavaConversions._
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Try
 
@@ -22,7 +23,7 @@ case class ReadmeAnalysis(totalLinks: Int, checkedLinks: Int,
   brokenLinks: Seq[(String,String)])
 
 // Eclipse GitHub (for searching)
-object egh {
+object EGH {
   val client = (new GitHubClient()).setOAuth2Token(sys.env("GITHUB_TOKEN"))
   val user = new UserService(client)
   val repo = new RepositoryService(client)
@@ -42,19 +43,19 @@ object Girl {
   val ua = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0"
 
   val repoCache: Cache[String] = LruCache(timeToLive=24 hours)
-  def getRepoBrokenLinksMemoized(userName: String, repoName: String) =
-    repoCache(userName+"/"+repoName) {
+  def getRepoBrokenLinksMemoized(userName: String, repoName: String): Future[String] =
+    repoCache(userName + "/" + repoName) {
       getRepoBrokenLinks(userName,repoName)
     }
 
   val userCache: Cache[String] = LruCache(timeToLive=24 hours)
-  def getUserBrokenLinksMemoized(userName: String) =
+  def getUserBrokenLinksMemoized(userName: String): Future[String] =
     repoCache(userName) { getUserBrokenLinks(userName) }
 
   val topCache: Cache[String] = LruCache(timeToLive=24 hours)
-  def getTopMemoized() = topCache() {getTop()}
+  def getTopMemoized(): Future[String] = topCache() {getTop()}
 
-  def getRepoBrokenLinks(userName: String, repoName: String) = {
+  def getRepoBrokenLinks(userName: String, repoName: String): String = {
     logger.info(s"getRepoBrokenLinks: $userName/$repoName")
     val userTry = Try(gh.getUser(userName))
     if (userTry.isSuccess) {
@@ -74,7 +75,7 @@ object Girl {
     }
   }
 
-  def getUserBrokenLinks(userName: String) = {
+  def getUserBrokenLinks(userName: String): String = {
     logger.info(s"getUserBrokenLinks: $userName")
     val userTry = Try(gh.getUser(userName))
     if (userTry.isSuccess) {
@@ -101,16 +102,16 @@ object Girl {
     }
   }
 
-  def getTop() = {
+  def getTop(): String = {
     val repos = scala.collection.mutable.Buffer[SearchRepository]()
     var pageNum = 1
     // TODO: Re-write this using better scala features.
     while (repos.size < numTop) {
-      repos ++= egh.repo.searchRepositories("stars:>1",pageNum).seq
+      repos ++= EGH.repo.searchRepositories("stars:>1",pageNum).seq
       pageNum += 1
     }
     val allBrokenLinks = repos.take(numTop).par.map{ repo =>
-      val fullRepoName = repo.getOwner()+"/"+repo.getName()
+      val fullRepoName = repo.getOwner() + "/" + repo.getName()
       val repoObj = gh.getRepository(fullRepoName)
       (fullRepoName, repoObj.getWatchers(), analyzeRepo(repoObj))
     }.toSeq.seq.sortBy(_._2)(Ordering[Int].reverse)
@@ -142,30 +143,39 @@ object Girl {
   // url checked and error message string otherwise.
   private def checkURL(url:String, attemptNum:Int=1):
       Option[(String,String)] = {
-    if (url.startsWith("mailto:")) return None
-    try {
-      val doc = Jsoup.connect(url)
-        .userAgent(ua)
-        .timeout(initialTimeoutMs*attemptNum)
-        .execute()
-      logger.info(Seq(url,doc.statusCode).mkString(","))
-      if (doc.statusCode != 200) Some(url,"Status is not 200")
-      else None
-    } catch {
-      case _: UnsupportedMimeTypeException | _: SSLProtocolException =>
-        None
-      case e: SocketTimeoutException =>
-        // A timeout might be a slow page that doesn't
-        // respond within soon enough. Retry once.
-        logger.info(Seq(url,e,attemptNum).map(_.toString).mkString(","))
-        if (attemptNum < maxURLAttempts) checkURL(url,attemptNum+1)
-        else Some(url,"Timed out")
-      case e: Throwable => {
-        logger.info(Seq(url,e).map(_.toString).mkString(", "))
-        if (Seq("127.0.0.1","localhost","0.0.0.0").exists(url.contains)) {
-          None
+    if (url.startsWith("mailto:")) {
+      None
+    } else {
+      try {
+        val doc = Jsoup.connect(url)
+          .userAgent(ua)
+          .timeout(initialTimeoutMs*attemptNum)
+          .execute()
+        logger.info(Seq(url,doc.statusCode).mkString(","))
+        if (doc.statusCode != 200) {
+          Some(url,"Status is not 200")
         } else {
-          Some(url,"Other exception: " + e toString)
+          None
+        }
+      } catch {
+        case _: UnsupportedMimeTypeException | _: SSLProtocolException =>
+          None
+        case e: SocketTimeoutException =>
+          // A timeout might be a slow page that doesn't
+          // respond within soon enough. Retry once.
+          logger.info(Seq(url,e,attemptNum).map(_.toString).mkString(","))
+          if (attemptNum < maxURLAttempts) {
+            checkURL(url, attemptNum + 1)
+          } else {
+            Some(url,"Timed out")
+          }
+        case e: Throwable => {
+          logger.info(Seq(url,e).map(_.toString).mkString(", "))
+          if (Seq("127.0.0.1","localhost","0.0.0.0").exists(url.contains)) {
+            None
+          } else {
+            Some(url,"Other exception: " + e toString)
+          }
         }
       }
     }
