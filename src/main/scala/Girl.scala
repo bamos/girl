@@ -128,10 +128,12 @@ object Girl {
 
   private def analyzeReadme(readmeUrl: String): ReadmeAnalysis = {
     val readme_doc = Jsoup.connect(readmeUrl).get()
-    val anchors = readme_doc.select("div#readme").select("a[href]")
-    val trimmedLinks = anchors
+    val anchors = readme_doc
+      .select("div#readme")
+      .select("a[href]")
       .map(_.attr("abs:href"))
       .filter(!_.contains(readmeUrl))
+    val trimmedLinks = anchors
       .take(maxLinksPerRepo).par
     val invalidLinks = trimmedLinks
       .flatMap(checkURL(_))
