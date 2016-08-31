@@ -61,7 +61,7 @@ object Girl {
     if (userTry.isSuccess) {
       val user = userTry.get
       if (Whitelist.users.contains(userName.toLowerCase) ||
-        user.getFollowersCount() > reqFollowers) {
+        user.getFollowersCount() >= reqFollowers) {
         val repo = user.getRepository(repoName)
         val analysis = analyzeRepo(repo)
         html.index(userName,Seq((repoName,analysis)),
@@ -81,7 +81,7 @@ object Girl {
     if (userTry.isSuccess) {
       val user = userTry.get
       if (Whitelist.users.contains(userName.toLowerCase) ||
-        user.getFollowersCount() > reqFollowers) {
+        user.getFollowersCount() >= reqFollowers) {
         val repos = user.getRepositories().par
         val allBrokenLinks = repos.collect{
           case (repoName,repo) if !repo.isPrivate && !repo.isFork &&
