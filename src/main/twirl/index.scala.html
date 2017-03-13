@@ -41,9 +41,9 @@
       </form>
 
       <h3>> <a href="https://github.com/@(user)" target="main">@(user)</a></h3>
-      @(numTotal) Total Links |
-      @(numChecked) Checked Links |
-      @(numBroken) Broken Links
+      @(numTotal) Total Link@if(numTotal != 1){s} |
+      @(numChecked) Checked Link@if(numChecked != 1){s} |
+      @(numBroken) Broken Link@if(numBroken != 1){s}
 
       @for((repoName,repoAnalysis)<-repos) {
         <h4><a href="https://github.com/@(user)/@(repoName)" target="main">@(repoName)</a></h4>
