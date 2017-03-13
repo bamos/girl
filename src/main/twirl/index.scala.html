@@ -3,58 +3,42 @@
   numTotal: Int, numChecked: Int, numBroken: Int)
 
 @base { } {
-  <div class="container">
-    <div class="col-lg-8 col-lg-offset-2">
-      <center><h1>girl: GitHub README Link Checker</h1></center>
-      <div id="footer">
-        <center>
-          <p>
-            Crafted by <a href="http://bamos.github.io" target="main">Brandon Amos</a> |
-            <a href="http://github.com/bamos/girl" target="main">Open-sourced on GitHub</a>
-          </p>
-        </center>
-      </div>
+  <p>
+    To prevent misuse,
+    <a href="https://github.com/bamos/girl" target="main">girl</a> restricts usage to
+    GitHub users with
+    over 50 followers or users and organizations on the
+    <a href="https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala" target="main">whitelist</a>.
+    Please use a local instance or add your accounts to the
+    <a href="https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala" target="main">whitelist</a>
+    and submit a pull request to gain access. Thanks!
+  </p>
 
-      <hr>
+  <p>
+    "Total Links" and "Checked Links" may differ below because
+    only the first 100 links in each repository will be checked.
+    To surpass this limit, please run a local instance.
+</p>
 
-      <p>
-        To prevent misuse,
-        <a href="https://github.com/bamos/girl" target="main">girl</a> restricts usage to
-        GitHub users with
-        over 50 followers or users and organizations on the
-        <a href="https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala" target="main">whitelist</a>.
-        Please use a local instance or add your accounts to the
-        <a href="https://github.com/bamos/girl/blob/master/src/main/scala/Whitelist.scala" target="main">whitelist</a>
-        and submit a pull request to gain access. Thanks!
-      </p>
+  <form id="tryForm" class='form-horizontal'>
+      <input type='text' class='form-control' id='suffix'
+             placeholder='username or username/repo'>
+      <button type="submit" class='btn'>Submit</button>
+  </form>
 
-      <p>
-        "Total Links" and "Checked Links" may differ below because
-        only the first 100 links in each repository will be checked.
-        To surpass this limit, please run a local instance.
-      </p>
+  <h3>> <a href="https://github.com/@(user)" target="main">@(user)</a></h3>
+  @(numTotal) Total Link@if(numTotal != 1){s} |
+  @(numChecked) Checked Link@if(numChecked != 1){s} |
+  @(numBroken) Broken Link@if(numBroken != 1){s}
 
-      <form id="tryForm" class='form-horizontal'>
-          <input type='text' class='form-control' id='suffix'
-                 placeholder='username or username/repo'>
-          <button type="submit" class='btn'>Submit</button>
-      </form>
-
-      <h3>> <a href="https://github.com/@(user)" target="main">@(user)</a></h3>
-      @(numTotal) Total Link@if(numTotal != 1){s} |
-      @(numChecked) Checked Link@if(numChecked != 1){s} |
-      @(numBroken) Broken Link@if(numBroken != 1){s}
-
-      @for((repoName,repoAnalysis)<-repos) {
-        <h4><a href="https://github.com/@(user)/@(repoName)" target="main">@(repoName)</a></h4>
-        <ul>
-        @for((link,reason)<-repoAnalysis.brokenLinks) {
-          <li><a href="@(link)" target="main">Broken Link: @(link)</a>
-            <ul><li>Reason: @reason</li></ul>
-          </li>
-        }
-        </ul>
-      }
-    </div>
-  </div>
+  @for((repoName,repoAnalysis)<-repos) {
+  <h4><a href="https://github.com/@(user)/@(repoName)" target="main">@(repoName)</a></h4>
+    <ul>
+    @for((link,reason)<-repoAnalysis.brokenLinks) {
+      <li><a href="@(link)" target="main">Broken Link: @(link)</a>
+        <ul><li>Reason: @reason</li></ul>
+      </li>
+    }
+    </ul>
+  }
 }
