@@ -38,7 +38,7 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
   val collectorRoute = {
     get {
       pathSingleSlash {
-        redirect("/bamos", StatusCodes.Found)
+        redirect("@demo", StatusCodes.Found)
       }~
       path("favicon.ico") {
         complete(StatusCodes.NotFound)
@@ -49,11 +49,11 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       path(Rest) { path =>
         getFromResource("bootstrap/%s" format path)
       }~
-      path("@top") {
-        respondWithMediaType(`text/html`) {
-          complete(Girl.getTopMemoized())
-        }
-      }~
+      // path("@top") {
+      //   respondWithMediaType(`text/html`) {
+      //     complete(Girl.getTopMemoized())
+      //   }
+      // }~
       path("@demo") {
         respondWithMediaType(`text/html`) {
           complete(html.index(
@@ -70,12 +70,12 @@ class RequestHandler(context: ActorRefFactory) extends HttpService {
       }~
       path(Segment) { user =>
         respondWithMediaType(`text/html`) {
-          complete(Girl.getUserBrokenLinksMemoized(user))
+          complete(Girl.getUserBrokenLinks(user))
         }
       }~
       path(Segment/Segment) { (user,repo) =>
         respondWithMediaType(`text/html`) {
-          complete(Girl.getRepoBrokenLinksMemoized(user,repo))
+          complete(Girl.getRepoBrokenLinks(user,repo))
         }
       }
     }~
